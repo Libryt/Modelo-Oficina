@@ -1,0 +1,107 @@
+Servico,Valor_Pecas,Valor_Mao_Obra,Tempo_Servico_Horas,Quilometragem_Carro,Ano_Fabricacao_Carro,Avaliacao_Cliente
+Troca de Oleo,120.50,50.00,1.0,85000,2018,4
+Revisao Geral,350.75,150.00,3.5,120000,2015,5
+Alinhamento e Balanceamento,80.00,60.00,1.5,60000,2020,4
+Troca de Pastilhas de Freio,95.20,70.00,1.0,70000,2019,3
+Troca de Pneus,400.00,80.00,2.0,55000,2021,5
+Diagnostico Eletrico,0.00,100.00,2.0,90000,2017,4
+Substituicao de Bateria,180.00,30.00,0.5,45000,2022,4
+Conserto de Suspensao,280.00,120.00,3.0,110000,2016,3
+Limpeza de Injecao,70.00,40.00,1.0,75000,2018,4
+Reparo de Motor,800.00,300.00,8.0,150000,2014,5
+Troca de Fluido de Freio,60.00,40.00,1.0,80000,2017,4
+Instalacao de Acessorios,50.00,50.00,1.5,30000,2023,5
+Verificacao de Freios,0.00,30.00,0.5,65000,2019,4
+Manutencao de Ar Condicionado,150.00,90.00,2.0,95000,2016,4
+Reparo de Transmissao,600.00,250.00,6.0,130000,2015,3
+Troca de Velas de Ignicao,75.00,45.00,1.0,50000,2020,4
+Inspecao Pre-Compra,0.00,120.00,2.0,100000,2013,5
+Instalacao de Som,100.00,70.00,2.0,40000,2022,4
+Polimento e Cristalizacao,150.00,100.00,4.0,20000,2024,5
+Reparo de Lanternagem,250.00,180.00,5.0,10000,2023,4
+Troca de Filtro de Ar,30.00,20.00,0.5,40000,2021,4
+Higienizacao Interna,80.00,60.00,2.0,35000,2022,5
+Substituicao de Correia Dentada,200.00,100.00,2.5,90000,2017,4
+Reparo de Escapamento,120.00,70.00,1.5,110000,2016,3
+Troca de Amortecedores,300.00,150.00,3.0,70000,2018,4
+Recarga de Gas AC,80.00,40.00,1.0,80000,2019,4
+Check-up Completo,0.00,150.00,2.5,100000,2015,5
+Instalacao de Engate,90.00,60.00,1.5,50000,2021,4
+Reparo de Vidro Eletrico,70.00,50.00,1.0,60000,2019,3
+Troca de Palhetas,25.00,15.00,0.5,30000,2023,4
+Remocao de Pequenos Amassados,100.00,80.00,2.0,25000,2024,4
+Ajuste de Freio de Mao,0.00,30.00,0.5,70000,2018,3
+Substituicao de Lampadas,15.00,10.00,0.5,50000,2020,4
+Limpeza de Radiador,60.00,40.00,1.0,90000,2017,4
+Reparo de Direcao Hidraulica,250.00,120.00,3.0,120000,2015,3
+Balanceamento de Rodas,40.00,30.00,1.0,60000,2019,4
+Revisao de Freios,0.00,80.00,1.5,80000,2018,4
+Troca de Correia do Alternador,80.00,50.00,1.0,70000,2019,4
+Reparo de Alternador,150.00,100.00,2.0,90000,2016,3
+Higienizacao de Ar Condicionado,70.00,50.00,1.5,60000,2020,4
+Verificacao de Niveis,0.00,20.00,0.5,50000,2021,5
+Reparo de Motor de Partida,100.00,80.00,1.5,85000,2017,3
+Troca de Bico Injetor,90.00,60.00,1.0,75000,2018,4
+Instalacao de Sensor de Re,120.00,80.00,1.5,40000,2022,4
+Reparo de Suspensao a Ar,300.00,180.00,4.0,100000,2015,3
+Limpeza de Velas,0.00,20.00,0.5,60000,2019,4
+Ajuste de Farois,0.00,25.00,0.5,70000,2018,4
+Recarga de Extintor,30.00,10.00,0.5,50000,2020,4
+Remocao de Odor,50.00,40.00,1.0,30000,2023,5
+Substituicao de Cabos de Vela,60.00,40.00,1.0,80000,2017,4
+Reparo de Escapamento Esportivo,180.00,100.00,2.0,50000,2021,4
+Troca de Filtro de Combustivel,40.00,30.00,0.5,60000,2019,4
+Lavagem Simples,0.00,50.00,1.0,20000,2024,4
+Verificacao de Pneus,0.00,15.00,0.5,55000,2020,5
+Reparo de Fechadura,40.00,30.00,0.5,70000,2018,3
+Instalacao de Calhas de Chuva,50.00,30.00,0.5,30000,2023,4
+Troca de Retrovisor,80.00,40.00,1.0,60000,2019,4
+Reparo de Vazamento de Oleo,150.00,100.00,2.0,90000,2016,3
+Limpeza de Sensor MAF,0.00,40.00,0.5,80000,2017,4
+Revisao de Eletrica,0.00,100.00,2.0,110000,2015,4
+Substituicao de Mangueiras,70.00,50.00,1.0,70000,2018,3
+Reparo de Para-choque,120.00,90.00,2.0,40000,2022,4
+Troca de Aditivo de Radiador,30.00,20.00,0.5,60000,2019,4
+Instalacao de Farois de Milha,100.00,70.00,1.5,50000,2021,4
+Verificacao de Bateria,0.00,20.00,0.5,45000,2022,4
+Reparo de Vidro Trincado,80.00,60.00,1.0,55000,2020,3
+Troca de Filtro de Cabine,25.00,15.00,0.5,35000,2023,4
+Servico de Guincho,0.00,150.00,3.0,150000,2010,5
+Funilaria e Pintura,500.00,400.00,10.0,80000,2017,5
+Polimento de Farois,60.00,40.00,1.0,70000,2018,4
+Troca de Homocinetica,180.00,90.00,2.0,90000,2016,3
+Reparo de Painel,100.00,80.00,1.5,100000,2015,4
+Limpeza de Bicos Injetores,50.00,60.00,1.0,75000,2018,4
+Instalacao de Camera de Re,150.00,100.00,2.0,40000,2022,4
+Verificacao de Suspensao,0.00,40.00,0.5,80000,2017,4
+Reparo de Central Multimidia,120.00,90.00,1.5,50000,2021,4
+Troca de Buchas de Bandeja,100.00,70.00,1.5,85000,2017,3
+Revisao de GNV,0.00,120.00,2.0,95000,2016,4
+Substituicao de Cilindro Mestre,120.00,80.00,1.5,70000,2018,3
+Reparo de Coxim do Motor,90.00,60.00,1.0,90000,2016,4
+Limpeza de TBI,0.00,50.00,1.0,70000,2019,4
+Ajuste de Portas,0.00,30.00,0.5,60000,2020,4
+Remocao de Adesivos,30.00,20.00,0.5,20000,2024,5
+Substituicao de Molas,150.00,80.00,2.0,80000,2017,4
+Reparo de Teto Solar,200.00,150.00,3.0,60000,2019,3
+Troca de Cabo de Embreagem,70.00,50.00,1.0,75000,2018,4
+Instalacao de Alarme,100.00,70.00,1.5,30000,2023,4
+Verificacao de Ruidos,0.00,50.00,1.0,90000,2016,3
+Reparo de DPF,300.00,200.00,4.0,120000,2015,3
+Troca de Rolamento de Roda,80.00,60.00,1.0,70000,2019,4
+Revisao de Freios ABS,0.00,90.00,1.5,80000,2017,4
+Substituicao de Sensor de Rotacao,60.00,40.00,1.0,90000,2016,4
+Reparo de Modulo de Injecao,400.00,250.00,5.0,100000,2015,3
+Limpeza de Catalisador,100.00,80.00,2.0,110000,2014,4
+Ajuste de Volante,0.00,30.00,0.5,60000,2020,4
+Remocao de Vazamento de Agua,80.00,50.00,1.0,70000,2018,4
+Substituicao de Atuador de Embreagem,150.00,90.00,2.0,85000,2017,3
+Reparo de Radiador,100.00,70.00,1.5,95000,2016,4
+Troca de Disco de Freio,150.00,80.00,1.5,70000,2018,4
+Instalacao de Ponteira de Escapamento,70.00,40.00,1.0,50000,2021,4
+Verificacao de Luzes do Painel,0.00,30.00,0.5,60000,2019,4
+Reparo de Vidro Traseiro,100.00,70.00,1.5,40000,2022,4
+Troca de Junta do Cabecote,300.00,200.00,5.0,120000,2015,3
+Substituicao de Reservatorio de Agua,50.00,30.00,0.5,80000,2017,4
+Reparo de Coluna de Direcao,200.00,150.00,3.0,100000,2015,3
+Lavagem a Seco,0.00,80.00,2.0,30000,2023,5
