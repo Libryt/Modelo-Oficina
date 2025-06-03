@@ -57,11 +57,6 @@ while True:
                         dt_preds = dt_model.predict(X_test) # Previsões no conjunto de teste
                         print(f"\nAcurácia (Árvore de Decisão): {accuracy_score(y_test, dt_preds):.2f}")
                         print("-" * 30)
-                        print("\nRelatório de Classificação (Árvore de Decisão):\n")
-                        class_labels = [str(c) for c in sorted(y.unique())] # Nomes das classes para o relatório
-                        print(classification_report(y_test, dt_preds, target_names=class_labels, zero_division=0))
-                        print("-" * 30)
-
                     elif dt_choice == 2: # Mostrar Árvore
                         print("\n--- Visualização da Árvore de Decisão ---")
                         try:
