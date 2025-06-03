@@ -8,183 +8,273 @@ from sklearn.model_selection import train_test_split # Lib para dividir dados
 
 # --- 1. Carregamento e Preparação Inicial dos Dados ---
 try:
-    df = pd.read_csv('oficina_Britt.csv') # Carrega os dados do arquivo CSV
+    dataframe_oficina = pd.read_csv('oficina_Britt.csv') # Carrega os dados do arquivo CSV
 except FileNotFoundError:
     print("Erro: O arquivo 'oficina_Britt.csv' não foi encontrado.")
     exit() # Encerra se o arquivo não existir
 
-df.columns = df.columns.str.strip() # Remove espaços extras dos nomes das colunas
+dataframe_oficina.columns = dataframe_oficina.columns.str.strip() # Remove espaços extras dos nomes das colunas
 
-# Define a variável alvo (y) e as features brutas (X_raw)
-y = df['Avaliacao_Cliente']
-X_raw = df.drop('Avaliacao_Cliente', axis=1)
+# Limpa os DADOS da coluna 'Servico'
+if 'Servico' in dataframe_oficina.columns:
+    dataframe_oficina['Servico'] = dataframe_oficina['Servico'].astype(str).str.strip() # Converte para string e remove espaços
+else:
+    print("Erro Crítico: A coluna 'Servico' não foi encontrada no arquivo CSV. Verifique o nome da coluna.")
+    exit()
 
-# Aplica One-Hot Encoding na feature categórica 'Servico'
-X = pd.get_dummies(X_raw, columns=['Servico'], prefix='Servico', dtype=int)
+# Armazena serviços disponíveis
+lista_servicos_disponiveis = dataframe_oficina['Servico'].unique().tolist()
+# Remove possíveis entradas vazias ou "nan"
+lista_servicos_disponiveis = [servico for servico in lista_servicos_disponiveis if servico and servico.lower() != 'nan']
+
+if not lista_servicos_disponiveis:
+    print("Aviso: Nenhum serviço válido encontrado na coluna 'Servico'. Verifique o arquivo CSV.")
+
+# Define a variável alvo (y_alvo) e as features brutas (X_features_originais)
+y_alvo = dataframe_oficina['Avaliacao_Cliente']
+X_features_originais = dataframe_oficina.drop('Avaliacao_Cliente', axis=1)
+# Armazena nomes das colunas ANTES do get_dummies
+nomes_colunas_originais = X_features_originais.columns.tolist()
+
+if not nomes_colunas_originais or nomes_colunas_originais[0] != 'Servico':
+    print(f"Aviso: A primeira coluna em 'nomes_colunas_originais' não é 'Servico' ou a lista está vazia.")
+    print(f"Ordem atual das colunas para entrada: {nomes_colunas_originais}")
+    print("Isso pode causar problemas na coleta de dados se a ordem não for ['Servico', col_pecas, ...]")
+
+# Transforma variável categórica 'Servico' em colunas numéricas (one-hot encoding)
+X_features_codificadas = pd.get_dummies(X_features_originais.copy(), columns=['Servico'], prefix='Servico', dtype=int)
 
 # Divide os dados em conjuntos de treino e teste, estratificando pelo alvo
-X_train, X_test, y_train, y_test = train_test_split(
-    X, y, test_size=0.3, random_state=1, stratify=y
+X_treino, X_teste, y_treino, y_teste = train_test_split(
+    X_features_codificadas, y_alvo, test_size=0.3, random_state=1, stratify=y_alvo
 )
 
-# Variáveis para armazenar modelos e scaler (evita reprocessamento)
-dt_model = None # Modelo de Árvore de Decisão
-svm_model = None # Modelo SVM
-scaler = None # Objeto StandardScaler
-X_train_scaled = None # Features de treino escalonadas
-X_test_scaled = None # Features de teste escalonadas
-
+# Variáveis para armazenar modelos e escalonador
+modelo_arvore_decisao = None
+modelo_svm_oficina = None # Renomeado para evitar conflito com o alias do módulo svm
+escalonador_features = None
+X_treino_escalonado = None
+X_teste_escalonado = None
 
 # --- 2. Loop Principal do Menu Interativo ---
 while True:
     print("\nMenu principal\nEscolha uma opção: \n1 - Árvore de Decisão\n2 - SVM\n3 - Encerrar programa")
     try:
-        main_choice = int(input("Digite uma opção: ")) # Escolha do usuário no menu principal
+        opcao_menu_principal = int(input("Digite uma opção: "))
 
         # --- Seção Árvore de Decisão ---
-        if main_choice == 1:
-            if dt_model is None: # Treina o modelo apenas se ainda não foi treinado
-                dt_model = tree.DecisionTreeClassifier(random_state=1)
-                dt_model.fit(X_train, y_train)
+        if opcao_menu_principal == 1:
+            if modelo_arvore_decisao is None:
+                modelo_arvore_decisao = tree.DecisionTreeClassifier(random_state=1)
+                modelo_arvore_decisao.fit(X_treino, y_treino)
 
             while True: # Loop do submenu da Árvore de Decisão
                 print("\nSeção Árvore de Decisão\nEscolha uma opção:")
                 print("1 - Mostrar Desempenho\n2 - Mostrar Árvore\n3 - Fazer nova classificação\n4 - Voltar ao menu principal")
                 try:
-                    dt_choice = int(input("Digite uma opção: ")) # Escolha no submenu
+                    opcao_submenu_arvore = int(input("Digite uma opção: "))
 
-                    if dt_choice == 1: # Mostrar Desempenho
-                        dt_preds = dt_model.predict(X_test) # Previsões no conjunto de teste
-                        print(f"\nAcurácia (Árvore de Decisão): {accuracy_score(y_test, dt_preds):.2f}")
+                    if opcao_submenu_arvore == 1: # Mostrar Desempenho
+                        predicoes_arvore = modelo_arvore_decisao.predict(X_teste)
+                        print(f"\nAcurácia (Árvore de Decisão): {accuracy_score(y_teste, predicoes_arvore):.2f}")
                         print("-" * 30)
-                    elif dt_choice == 2: # Mostrar Árvore
+                    elif opcao_submenu_arvore == 2: # Mostrar Árvore
                         print("\n--- Visualização da Árvore de Decisão ---")
                         try:
-                            feat_names = X.columns.tolist() # Nomes das features para o plot
-                            class_labels_plot = sorted([str(c) for c in y.unique()]) # Nomes das classes para o plot
+                            nomes_features_plot_arvore = X_treino.columns.tolist()
+                            rotulos_classes_plot_arvore = sorted([str(classe) for classe in y_alvo.unique()])
 
                             plt.figure(figsize=(20,10))
-                            plot_tree(dt_model, feature_names=feat_names, class_names=class_labels_plot,
+                            plot_tree(modelo_arvore_decisao, feature_names=nomes_features_plot_arvore, class_names=rotulos_classes_plot_arvore,
                                       filled=True, rounded=True, proportion=False, fontsize=7)
                             plt.title("Árvore de Decisão Treinada")
-                            plt.show() # Exibe a árvore
-                        except Exception as e:
-                            print(f"\nOcorreu um erro ao visualizar a árvore: {e}")
+                            plt.show()
+                        except Exception as erro_plot_arvore:
+                            print(f"\nOcorreu um erro ao visualizar a árvore: {erro_plot_arvore}")
 
-                    elif dt_choice == 3: # Fazer Nova Classificação
+                    elif opcao_submenu_arvore == 3: # Fazer Nova Classificação
                         print("\n--- Nova Classificação (Árvore de Decisão) ---")
+                        fluxo_classificacao_interrompido_arvore = False
                         try:
-                            valid_services = X_raw['Servico'].unique() # Lista de serviços válidos
-                            print(f"Serviços disponíveis: {', '.join(valid_services)}")
-                            user_service = input(f"Digite o tipo de Serviço: ").strip()
+                            servico_digitado_usuario = ""
+                            while True: # Loop para obter entrada de serviço válida
+                                print(f"Serviços disponíveis: {', '.join(lista_servicos_disponiveis)}")
+                                if not lista_servicos_disponiveis:
+                                    print("Nenhum serviço disponível para classificação. Voltando ao menu anterior.")
+                                    fluxo_classificacao_interrompido_arvore = True
+                                    break
+                                
+                                entrada_servico_usuario_temp = input(f"Digite o tipo de Serviço (ou 'cancelar' para voltar): ").strip()
 
-                            if user_service not in valid_services: # Validação do serviço inserido
-                                print(f"Erro: Serviço '{user_service}' inválido. Escolha entre: {', '.join(valid_services)}")
+                                if entrada_servico_usuario_temp.lower() == 'cancelar':
+                                    print("Classificação cancelada.")
+                                    fluxo_classificacao_interrompido_arvore = True
+                                    break
+                                
+                                nome_servico_correspondente_arvore = None
+                                for item_servico_lista in lista_servicos_disponiveis:
+                                    if entrada_servico_usuario_temp.lower() == item_servico_lista.lower():
+                                        nome_servico_correspondente_arvore = item_servico_lista
+                                        break
+                                
+                                if nome_servico_correspondente_arvore is None:
+                                    print(f"Erro: Serviço '{entrada_servico_usuario_temp}' inválido ou não encontrado. Por favor, tente novamente ou digite 'cancelar'.")
+                                else:
+                                    servico_digitado_usuario = nome_servico_correspondente_arvore
+                                    print(f"Serviço selecionado: {servico_digitado_usuario}")
+                                    break
+                            
+                            if fluxo_classificacao_interrompido_arvore:
                                 continue
 
-                            # Coleta das demais features do usuário
-                            user_parts = float(input("Valor das peças (ex.: 150.0): "))
-                            user_labor = float(input("Valor da mão de obra (ex.: 70.0): "))
-                            user_time = float(input("Tempo de serviço em horas (ex.: 2.5): "))
-                            user_km = float(input("Quilometragem do carro (ex.: 85000): "))
-                            user_year = int(input("Ano de fabricação (ex.: 2018): "))
+                            try:
+                                nome_coluna_pecas_arvore = nomes_colunas_originais[1]
+                                valor_pecas_usuario_arvore = float(input(f"Valor das peças (para '{nome_coluna_pecas_arvore}', ex.: 150.0): "))
 
-                            # Cria DataFrame com a nova entrada
-                            new_input_df = pd.DataFrame([[user_service, user_parts, user_labor, user_time, user_km, user_year]],
-                                                        columns=X_raw.columns)
-                            # Processa a nova entrada
-                            new_input_processed = pd.get_dummies(new_input_df, columns=['Servico'], prefix='Servico', dtype=int)
-                            # Reindexa para garantir as mesmas colunas do treino, preenchendo com 0 colunas faltantes
-                            new_input_reindexed = new_input_processed.reindex(columns=X.columns, fill_value=0)
+                                nome_coluna_mao_obra_arvore = nomes_colunas_originais[2]
+                                valor_mao_obra_usuario_arvore = float(input(f"Valor da mão de obra (para '{nome_coluna_mao_obra_arvore}', ex.: 70.0): "))
+                                
+                                nome_coluna_horas_arvore = nomes_colunas_originais[3]
+                                tempo_horas_usuario_arvore = float(input(f"Tempo de serviço em horas (para '{nome_coluna_horas_arvore}', ex.: 2.5): "))
 
-                            prediction = dt_model.predict(new_input_reindexed) # Realiza a previsão
-                            print(f"\nPrevisão da Avaliação do Cliente: {prediction[0]}")
+                                nome_coluna_km_arvore = nomes_colunas_originais[4]
+                                km_carro_usuario_arvore = float(input(f"Quilometragem do carro (para '{nome_coluna_km_arvore}', ex.: 85000): "))
+
+                                nome_coluna_ano_carro_arvore = nomes_colunas_originais[5]
+                                ano_carro_usuario_arvore = int(input(f"Ano de fabricação (para '{nome_coluna_ano_carro_arvore}', ex.: 2018): "))
+
+                            except IndexError:
+                                print("\nErro de configuração: O número de colunas em 'nomes_colunas_originais' não é o esperado.")
+                                print(f"Verifique 'nomes_colunas_originais': {nomes_colunas_originais}")
+                                continue
+
+                            valores_nova_entrada_arvore = [[servico_digitado_usuario, valor_pecas_usuario_arvore, valor_mao_obra_usuario_arvore, tempo_horas_usuario_arvore, km_carro_usuario_arvore, ano_carro_usuario_arvore]]
+                            dataframe_nova_entrada_arvore = pd.DataFrame(valores_nova_entrada_arvore, columns=nomes_colunas_originais)
+                            
+                            nova_entrada_codificada_arvore = pd.get_dummies(dataframe_nova_entrada_arvore, columns=['Servico'], prefix='Servico', dtype=int)
+                            nova_entrada_reindexada_arvore = nova_entrada_codificada_arvore.reindex(columns=X_treino.columns, fill_value=0)
+
+                            predicao_final_arvore = modelo_arvore_decisao.predict(nova_entrada_reindexada_arvore)
+                            print(f"\nPrevisão da Avaliação do Cliente (Árvore): {predicao_final_arvore[0]}")
 
                         except ValueError:
-                            print("\nErro: Entrada inválida. Verifique os tipos de dados.")
-                        except Exception as e:
-                             print(f"\nErro inesperado na classificação: {e}")
+                            print("\nErro: Entrada inválida para valor numérico. Tente a classificação novamente.")
+                        except Exception as erro_classificacao_arvore:
+                             print(f"\nErro inesperado durante a nova classificação (Árvore): {erro_classificacao_arvore}")
 
-                    elif dt_choice == 4: # Voltar ao Menu Principal
-                        break # Sai do submenu
+                    elif opcao_submenu_arvore == 4:
+                        break 
                     else:
                         print("Opção inválida.")
                 except ValueError:
-                    print("Entrada inválida. Digite um número.")
+                    print("Entrada inválida para opção do submenu. Digite um número.")
 
         # --- Seção SVM ---
-        elif main_choice == 2:
-            if svm_model is None or scaler is None: # Prepara dados e treina SVM apenas se necessário
-                scaler = StandardScaler()
-                X_train_scaled = scaler.fit_transform(X_train) # Ajusta o scaler e transforma dados de treino
-                X_test_scaled = scaler.transform(X_test) # Transforma dados de teste
-
-                svm_model = svm.SVC(random_state=1, kernel='linear', C=1.0)
-                svm_model.fit(X_train_scaled, y_train) # Treina o modelo SVM
+        elif opcao_menu_principal == 2:
+            if X_treino_escalonado is None:
+                escalonador_features = StandardScaler()
+                X_treino_escalonado = escalonador_features.fit_transform(X_treino)
+                X_teste_escalonado = escalonador_features.transform(X_teste)
+                modelo_svm_oficina = svm.SVC(kernel='linear', C=1.0, random_state=1)
+                modelo_svm_oficina.fit(X_treino_escalonado, y_treino)
 
             while True: # Loop do submenu SVM
                 print("\nSeção SVM\nEscolha uma opção:")
                 print("1 - Mostrar Desempenho\n2 - Fazer nova classificação\n3 - Voltar ao menu principal")
                 try:
-                    svm_choice = int(input("Digite uma opção: ")) # Escolha no submenu SVM
+                    opcao_submenu_svm = int(input("Digite uma opção: "))
 
-                    if svm_choice == 1: # Mostrar Desempenho
-                        svm_preds = svm_model.predict(X_test_scaled) # Previsões no teste escalonado
-                        print(f"\nAcurácia (SVM): {accuracy_score(y_test, svm_preds):.2f}")
-                        #print(f"\nAcurácia (SVM): {accuracy_score(y_test, svm_preds) * 100:.2f}%") CASO O PROFESSOR QUEIRA PORCENTAGEM
+                    if opcao_submenu_svm == 1: # Mostrar Desempenho
+                        predicoes_svm = modelo_svm_oficina.predict(X_teste_escalonado)
+                        print(f"\nAcurácia (SVM): {accuracy_score(y_teste, predicoes_svm):.2f}")
                         print("-" * 30)
                         print("\nRelatório de Classificação (SVM):\n")
-                        class_labels = [str(c) for c in sorted(y.unique())] # Nomes das classes
-                        print(classification_report(y_test, svm_preds, target_names=class_labels, zero_division=0))
+                        rotulos_classes_relatorio_svm = [str(classe) for classe in sorted(y_alvo.unique())]
+                        print(classification_report(y_teste, predicoes_svm, target_names=rotulos_classes_relatorio_svm, zero_division=0))
                         print("-" * 30)
 
-                    elif svm_choice == 2: # Fazer Nova Classificação
+                    elif opcao_submenu_svm == 2: # Fazer Nova Classificação
                         print("\n--- Previsão para Nova Entrada (SVM) ---")
+                        fluxo_classificacao_interrompido_svm = False
                         try:
-                            valid_services = X_raw['Servico'].unique() # Lista de serviços válidos
-                            print(f"Serviços disponíveis: {', '.join(valid_services)}")
-                            user_service = input(f"Digite o tipo de Serviço: ").strip()
+                            servico_digitado_usuario_svm = ""
+                            while True: # Loop para obter entrada de serviço válida
+                                print(f"Serviços disponíveis: {', '.join(lista_servicos_disponiveis)}")
+                                if not lista_servicos_disponiveis:
+                                    print("Nenhum serviço disponível para classificação. Voltando ao menu anterior.")
+                                    fluxo_classificacao_interrompido_svm = True
+                                    break
+                                
+                                entrada_servico_usuario_temp_svm = input(f"Digite o tipo de Serviço (ou 'cancelar' para voltar): ").strip()
 
-                            if user_service not in valid_services: # Validação do serviço
-                                print(f"Erro: Serviço '{user_service}' inválido. Escolha entre: {', '.join(valid_services)}")
+                                if entrada_servico_usuario_temp_svm.lower() == 'cancelar':
+                                    print("Classificação cancelada.")
+                                    fluxo_classificacao_interrompido_svm = True
+                                    break
+                                
+                                nome_servico_correspondente_svm = None
+                                for item_servico_lista_svm in lista_servicos_disponiveis:
+                                    if entrada_servico_usuario_temp_svm.lower() == item_servico_lista_svm.lower():
+                                        nome_servico_correspondente_svm = item_servico_lista_svm
+                                        break
+                                
+                                if nome_servico_correspondente_svm is None:
+                                    print(f"Erro: Serviço '{entrada_servico_usuario_temp_svm}' inválido ou não encontrado. Por favor, tente novamente ou digite 'cancelar'.")
+                                else:
+                                    servico_digitado_usuario_svm = nome_servico_correspondente_svm
+                                    print(f"Serviço selecionado: {servico_digitado_usuario_svm}")
+                                    break
+                            
+                            if fluxo_classificacao_interrompido_svm:
                                 continue
 
-                            # Coleta das demais features
-                            user_parts = float(input("Valor das peças (ex.: 150.0): "))
-                            user_labor = float(input("Valor da mão de obra (ex.: 70.0): "))
-                            user_time = float(input("Tempo de serviço em horas (ex.: 2.5): "))
-                            user_km = float(input("Quilometragem do carro (ex.: 85000): "))
-                            user_year = int(input("Ano de fabricação (ex.: 2018): "))
+                            try:
+                                nome_coluna_pecas_svm = nomes_colunas_originais[1]
+                                valor_pecas_usuario_svm = float(input(f"Valor das peças (para '{nome_coluna_pecas_svm}', ex.: 150.0): "))
 
-                            # Cria DataFrame com a nova entrada
-                            new_input_df = pd.DataFrame([[user_service, user_parts, user_labor, user_time, user_km, user_year]],
-                                                        columns=X_raw.columns)
-                            # Processa a nova entrada (One-Hot Encoding)
-                            new_input_processed = pd.get_dummies(new_input_df, columns=['Servico'], prefix='Servico', dtype=int)
-                            # Reindexa para consistência com colunas de treino
-                            new_input_reindexed = new_input_processed.reindex(columns=X.columns, fill_value=0)
-                            # Escala a nova entrada usando o scaler ajustado anteriormente
-                            new_input_scaled = scaler.transform(new_input_reindexed)
+                                nome_coluna_mao_obra_svm = nomes_colunas_originais[2]
+                                valor_mao_obra_usuario_svm = float(input(f"Valor da mão de obra (para '{nome_coluna_mao_obra_svm}', ex.: 70.0): "))
+                                
+                                nome_coluna_horas_svm = nomes_colunas_originais[3]
+                                tempo_horas_usuario_svm = float(input(f"Tempo de serviço em horas (para '{nome_coluna_horas_svm}', ex.: 2.5): "))
 
-                            prediction = svm_model.predict(new_input_scaled) # Realiza a previsão
-                            print(f"\nPrevisão da Avaliação do Cliente (SVM): {prediction[0]}")
+                                nome_coluna_km_svm = nomes_colunas_originais[4]
+                                km_carro_usuario_svm = float(input(f"Quilometragem do carro (para '{nome_coluna_km_svm}', ex.: 85000): "))
+
+                                nome_coluna_ano_carro_svm = nomes_colunas_originais[5]
+                                ano_carro_usuario_svm = int(input(f"Ano de fabricação (para '{nome_coluna_ano_carro_svm}', ex.: 2018): "))
+                                
+                            except IndexError:
+                                print("\nErro de configuração: O número de colunas em 'nomes_colunas_originais' não é o esperado.")
+                                print(f"Verifique 'nomes_colunas_originais': {nomes_colunas_originais}")
+                                continue
+                                
+                            valores_nova_entrada_svm = [[servico_digitado_usuario_svm, valor_pecas_usuario_svm, valor_mao_obra_usuario_svm, tempo_horas_usuario_svm, km_carro_usuario_svm, ano_carro_usuario_svm]]
+                            dataframe_nova_entrada_svm = pd.DataFrame(valores_nova_entrada_svm, columns=nomes_colunas_originais)
+                            
+                            nova_entrada_codificada_svm = pd.get_dummies(dataframe_nova_entrada_svm, columns=['Servico'], prefix='Servico', dtype=int)
+                            nova_entrada_reindexada_svm = nova_entrada_codificada_svm.reindex(columns=X_treino.columns, fill_value=0)
+                            nova_entrada_escalonada_svm = escalonador_features.transform(nova_entrada_reindexada_svm)
+
+                            predicao_final_svm = modelo_svm_oficina.predict(nova_entrada_escalonada_svm)
+                            print(f"\nPrevisão da Avaliação do Cliente (SVM): {predicao_final_svm[0]}")
 
                         except ValueError:
-                            print("\nErro: Entrada inválida. Verifique os tipos de dados.")
-                        except Exception as e:
-                            print(f"\nErro inesperado na classificação: {e}")
-
-                    elif svm_choice == 3: # Voltar ao Menu Principal
-                        break # Sai do submenu SVM
+                            print("\nErro: Entrada inválida para valor numérico. Tente a classificação novamente.")
+                        except Exception as erro_classificacao_svm:
+                            print(f"\nErro inesperado durante a nova classificação SVM: {erro_classificacao_svm}")
+                            
+                    elif opcao_submenu_svm == 3:
+                        break
                     else:
                         print("Opção inválida.")
                 except ValueError:
-                    print("Entrada inválida. Digite um número.")
+                    print("Entrada inválida para opção do submenu. Digite um número.")
 
-        elif main_choice == 3: # Encerrar Programa
+        elif opcao_menu_principal == 3:
             print("Programa encerrado.")
-            break # Sai do loop principal
+            break
         else:
             print("Opção inválida.")
     except ValueError:
-        print("Entrada inválida. Digite um número para a opção do menu.")
+        print("Entrada inválida para opção do menu principal. Digite um número.")
