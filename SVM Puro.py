@@ -32,9 +32,8 @@ X_treino_scaled = scaler.fit_transform(X_treino)
 X_teste_scaled = scaler.transform(X_teste)
 
 # 5. Aprendizado do modelo SVM
-# Considere experimentar outros kernels ('rbf', 'poly') e ajustar C e gamma (para 'rbf' e 'poly')
-# Exemplo: modelo_svm = svm.SVC(random_state=1, kernel='rbf', C=1.0, gamma='scale')
-modelo_svm = svm.SVC(random_state=1, kernel='linear', C=1.0)
+
+modelo_svm = svm.SVC(kernel='linear', C=1.0)
 modelo_svm.fit(X_treino_scaled, alvo_treino)
 
 # 6. Mostrar desempenho

@@ -36,7 +36,7 @@ X_treino, X_teste, alvo_treino, alvo_teste = train_test_split(
 # O Pipeline irá primeiro escalonar os dados (StandardScaler) e depois aplicar o SVC.
 svm_pipeline = Pipeline([
     ('scaler', StandardScaler()),  # Etapa de escalonamento
-    ('svc', svm.SVC(random_state=1, kernel='linear', C=1.0)) # Etapa do classificador SVM
+    ('svc', svm.SVC(kernel='linear', C=1.0)) # Etapa do classificador SVM
 ])
 
 # Treina o pipeline. O scaler será ajustado (fit_transform) nos dados de treino

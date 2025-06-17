@@ -6,7 +6,7 @@ from sklearn.preprocessing import StandardScaler # Lib para escalonar features
 from sklearn.metrics import accuracy_score, classification_report # Libs para métricas de avaliação
 from sklearn.model_selection import train_test_split # Lib para dividir dados
 
-# --- 1. Carregamento e Preparação Inicial dos Dados ---
+# --- 1. Carregamento + Teste de CSV + Preparação Inicial dos Dados ---
 try:
     dataframe_oficina = pd.read_csv('oficina_Britt.csv') # Carrega os dados do arquivo CSV
 except FileNotFoundError:
@@ -15,20 +15,10 @@ except FileNotFoundError:
 
 dataframe_oficina.columns = dataframe_oficina.columns.str.strip() # Remove espaços extras dos nomes das colunas
 
-# Limpa os DADOS da coluna 'Servico'
-if 'Servico' in dataframe_oficina.columns:
-    dataframe_oficina['Servico'] = dataframe_oficina['Servico'].astype(str).str.strip() # Converte para string e remove espaços
-else:
-    print("Erro Crítico: A coluna 'Servico' não foi encontrada no arquivo CSV. Verifique o nome da coluna.")
-    exit()
+dataframe_oficina['Servico'] = dataframe_oficina['Servico'].astype(str).str.strip() # Converte para string e remove espaços extras das linhas da tabela
 
 # Armazena serviços disponíveis
 lista_servicos_disponiveis = dataframe_oficina['Servico'].unique().tolist()
-# Remove possíveis entradas vazias ou "nan"
-lista_servicos_disponiveis = [servico for servico in lista_servicos_disponiveis if servico and servico.lower() != 'nan']
-
-if not lista_servicos_disponiveis:
-    print("Aviso: Nenhum serviço válido encontrado na coluna 'Servico'. Verifique o arquivo CSV.")
 
 # Define a variável alvo (y_alvo) e as features brutas (X_features_originais)
 y_alvo = dataframe_oficina['Avaliacao_Cliente']
@@ -36,22 +26,18 @@ X_features_originais = dataframe_oficina.drop('Avaliacao_Cliente', axis=1)
 # Armazena nomes das colunas ANTES do get_dummies
 nomes_colunas_originais = X_features_originais.columns.tolist()
 
-if not nomes_colunas_originais or nomes_colunas_originais[0] != 'Servico':
-    print(f"Aviso: A primeira coluna em 'nomes_colunas_originais' não é 'Servico' ou a lista está vazia.")
-    print(f"Ordem atual das colunas para entrada: {nomes_colunas_originais}")
-    print("Isso pode causar problemas na coleta de dados se a ordem não for ['Servico', col_pecas, ...]")
-
-# Transforma variável categórica 'Servico' em colunas numéricas (one-hot encoding)
-X_features_codificadas = pd.get_dummies(X_features_originais.copy(), columns=['Servico'], prefix='Servico', dtype=int)
+# Transforma variável categórica 'Servico' em colunas numéricas
+X_features_codificadas = pd.get_dummies(X_features_originais.copy(), columns=['Servico'], prefix='Servico', dtype=int) #copy() cria copia do dataframe para não modificar documento
+#original(procedimento de segurança)
 
 # Divide os dados em conjuntos de treino e teste, estratificando pelo alvo
 X_treino, X_teste, y_treino, y_teste = train_test_split(
     X_features_codificadas, y_alvo, test_size=0.3, random_state=1, stratify=y_alvo
 )
 
-# Variáveis para armazenar modelos e escalonador
+# Variáveis para armazenar modelos e escalonador(Procedimento para evitar treinar várias vezes na mesma execução de código)
 modelo_arvore_decisao = None
-modelo_svm_oficina = None # Renomeado para evitar conflito com o alias do módulo svm
+modelo_svm_oficina = None 
 escalonador_features = None
 X_treino_escalonado = None
 X_teste_escalonado = None
@@ -64,8 +50,9 @@ while True:
 
         # --- Seção Árvore de Decisão ---
         if opcao_menu_principal == 1:
+            #IF para verificar se o codigo ja foi treinado ou não, se foi ele ignora o treinamento.
             if modelo_arvore_decisao is None:
-                modelo_arvore_decisao = tree.DecisionTreeClassifier(random_state=1)
+                modelo_arvore_decisao = tree.DecisionTreeClassifier()
                 modelo_arvore_decisao.fit(X_treino, y_treino)
 
             while True: # Loop do submenu da Árvore de Decisão
@@ -81,11 +68,10 @@ while True:
                     elif opcao_submenu_arvore == 2: # Mostrar Árvore
                         print("\n--- Visualização da Árvore de Decisão ---")
                         try:
-                            nomes_features_plot_arvore = X_treino.columns.tolist()
-                            rotulos_classes_plot_arvore = sorted([str(classe) for classe in y_alvo.unique()])
+                            nomes_features_plot_arvore = X_treino.columns.tolist() # Separa os serviços em lista para mostrar servico + regra logica(Servico <= X)
 
                             plt.figure(figsize=(20,10))
-                            plot_tree(modelo_arvore_decisao, feature_names=nomes_features_plot_arvore, class_names=rotulos_classes_plot_arvore,
+                            plot_tree(modelo_arvore_decisao, feature_names=nomes_features_plot_arvore,
                                       filled=True, rounded=True, proportion=False, fontsize=7)
                             plt.title("Árvore de Decisão Treinada")
                             plt.show()
@@ -175,7 +161,7 @@ while True:
                 escalonador_features = StandardScaler()
                 X_treino_escalonado = escalonador_features.fit_transform(X_treino)
                 X_teste_escalonado = escalonador_features.transform(X_teste)
-                modelo_svm_oficina = svm.SVC(kernel='linear', C=1.0, random_state=1)
+                modelo_svm_oficina = svm.SVC(kernel='linear', C=1.0)
                 modelo_svm_oficina.fit(X_treino_escalonado, y_treino)
 
             while True: # Loop do submenu SVM

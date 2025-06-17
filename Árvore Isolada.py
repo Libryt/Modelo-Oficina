@@ -15,8 +15,8 @@ except FileNotFoundError:
 dados.columns = dados.columns.str.strip() # Remove espaços dos nomes das colunas
 
 # 2. Definição da variável alvo (alvo) e das features (features_originais) antes do pré-processamento
-alvo = dados['Avaliacao_Cliente']
-features_originais = dados.drop('Avaliacao_Cliente', axis=1)
+alvo = dados['Avaliacao_Cliente'] #Define a variável Y(Alvo)
+features_originais = dados.drop('Avaliacao_Cliente', axis=1) # Dropa todos
 
 # 3. Aplicação do pd.get_dummies na feature categórica 'Servico'
 features_processadas = pd.get_dummies(features_originais, columns=['Servico'], prefix='Servico', dtype=int)
@@ -28,7 +28,7 @@ X_treino, X_teste, alvo_treino, alvo_teste = train_test_split(
 )
 
 # 5. Aprendizado do modelo de Árvore de Decisão
-modelo_arvore = tree.DecisionTreeClassifier(random_state=1)
+modelo_arvore = tree.DecisionTreeClassifier()
 modelo_arvore.fit(X_treino, alvo_treino)
 
 # 6. Mostrar desempenho em PORCENTAGEM
