@@ -22,10 +22,8 @@ features_originais = dados.drop('Avaliacao_Cliente', axis=1) # Dropa todos
 features_processadas = pd.get_dummies(features_originais, columns=['Servico'], prefix='Servico', dtype=int)
 
 # 4. Definição dos dados de treinamento e de teste (COM STRATIFY)
-# Adicionado stratify=alvo para replicar a condição que resultava em ~47% de acurácia
 X_treino, X_teste, alvo_treino, alvo_teste = train_test_split(
-    features_processadas, alvo, test_size=0.3, random_state=1, stratify=alvo
-)
+    features_processadas, alvo, test_size=0.3, random_state=1)
 
 # 5. Aprendizado do modelo de Árvore de Decisão
 modelo_arvore = tree.DecisionTreeClassifier()

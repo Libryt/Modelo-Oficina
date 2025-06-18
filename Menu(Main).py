@@ -32,8 +32,7 @@ X_features_codificadas = pd.get_dummies(X_features_originais.copy(), columns=['S
 
 # Divide os dados em conjuntos de treino e teste, estratificando pelo alvo
 X_treino, X_teste, y_treino, y_teste = train_test_split(
-    X_features_codificadas, y_alvo, test_size=0.3, random_state=1, stratify=y_alvo
-)
+    X_features_codificadas, y_alvo, test_size=0.3, random_state=1)
 
 # Variáveis para armazenar modelos e escalonador(Procedimento para evitar treinar várias vezes na mesma execução de código)
 modelo_arvore_decisao = None
@@ -61,11 +60,11 @@ while True:
                 try:
                     opcao_submenu_arvore = int(input("Digite uma opção: "))
 
-                    if opcao_submenu_arvore == 1: # Mostrar Desempenho
+                    if opcao_submenu_arvore == 1: # Mostrar Desempenho da árvore
                         predicoes_arvore = modelo_arvore_decisao.predict(X_teste)
-                        print(f"\nAcurácia (Árvore de Decisão): {accuracy_score(y_teste, predicoes_arvore):.2f}")
+                        print(f"\nAcurácia (Árvore de Decisão): {(accuracy_score(y_teste, predicoes_arvore) * 100):.2f}%")
                         print("-" * 30)
-                    elif opcao_submenu_arvore == 2: # Mostrar Árvore
+                    elif opcao_submenu_arvore == 2: # ________Mostrar Árvore_________
                         print("\n--- Visualização da Árvore de Decisão ---")
                         try:
                             nomes_features_plot_arvore = X_treino.columns.tolist() # Separa os serviços em lista para mostrar servico + regra logica(Servico <= X)
@@ -114,6 +113,7 @@ while True:
                                 continue
 
                             try:
+                                #input para o usuario
                                 nome_coluna_pecas_arvore = nomes_colunas_originais[1]
                                 valor_pecas_usuario_arvore = float(input(f"Valor das peças (para '{nome_coluna_pecas_arvore}', ex.: 150.0): "))
 
@@ -172,7 +172,7 @@ while True:
 
                     if opcao_submenu_svm == 1: # Mostrar Desempenho
                         predicoes_svm = modelo_svm_oficina.predict(X_teste_escalonado)
-                        print(f"\nAcurácia (SVM): {accuracy_score(y_teste, predicoes_svm):.2f}")
+                        print(f"\nAcurácia (SVM): {(accuracy_score(y_teste, predicoes_svm) * 100):.2f}%")
                         print("-" * 30)
                         print("\nRelatório de Classificação (SVM):\n")
                         rotulos_classes_relatorio_svm = [str(classe) for classe in sorted(y_alvo.unique())]
@@ -215,6 +215,7 @@ while True:
                                 continue
 
                             try:
+                                #input para usuario
                                 nome_coluna_pecas_svm = nomes_colunas_originais[1]
                                 valor_pecas_usuario_svm = float(input(f"Valor das peças (para '{nome_coluna_pecas_svm}', ex.: 150.0): "))
 

@@ -21,10 +21,8 @@ features_originais = dados.drop('Avaliacao_Cliente', axis=1)
 features_processadas = pd.get_dummies(features_originais, columns=['Servico'], prefix='Servico', dtype=int)
 
 # 4. Definição dos dados de treinamento e de teste
-# ADICIONADO: stratify=alvo para manter a proporção das classes
 X_treino, X_teste, alvo_treino, alvo_teste = train_test_split(
-    features_processadas, alvo, test_size=0.3, random_state=1, stratify=alvo
-)
+    features_processadas, alvo, test_size=0.3, random_state=1)
 
 # 4.1 Escalonamento das features (IMPORTANTE para SVM)
 scaler = StandardScaler()
@@ -45,7 +43,6 @@ print("-" * 30)
 print("\nRelatório de Classificação SVM:\n")
 try:
     target_names = [str(c) for c in sorted(alvo.unique())] # Usar alvo.unique() do dataset original para pegar todos os nomes de classe possíveis
-    # ADICIONADO: zero_division=0 para evitar o aviso e setar a métrica para 0 nesses casos
     print(classification_report(alvo_teste, previsoes_no_teste_svm, target_names=target_names, zero_division=0))
 except Exception as e:
     print(f"Não foi possível gerar nomes de classe para o relatório, usando padrão: {e}")
